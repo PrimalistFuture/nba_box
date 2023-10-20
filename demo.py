@@ -1,5 +1,5 @@
 import os
-import inspect
+from datetime import date, timedelta
 from flask import Flask
 # from flask_debugtoolbar import DebugToolbarExtension
 from nba_api.stats.static import teams, players
@@ -38,13 +38,13 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 # ---------------- PLAYER TEST -------------------------
 
-nba_players = players.get_players()
-print("Number of players fetched: {}".format(len(nba_players)))
-nba_players[:5]
+# nba_players = players.get_players()
+# print("Number of players fetched: {}".format(len(nba_players)))
+# nba_players[:5]
 
 # To search for an individual team or player by its name (or other attribute), dictionary comprehensions are your friend.
 
-human_torch = [player for player in nba_players if player["full_name"] == "Stephen Curry"]
+# human_torch = [player for player in nba_players if player["full_name"] == "Stephen Curry"]
 
 # ---------------- BOXSCORESCORING TEST ------------------------
 
@@ -83,10 +83,10 @@ game_log = leaguegamelog.LeagueGameLog(counter='0', direction='ASC', league_id='
 # this is the bit that confuses me: when I had the same thing but with .data instead, it didn't work so I sort of thought it didn't exist in the shape I thought it did.
 games = game_log.league_game_log.data['data']
 
-day = '2023-04-09'
+# day = '2023-04-09'
 
-team = 'GSW'
-team2 = 'POR'
+# team = 'GSW'
+# team2 = 'POR'
 
 # Holy shit I did it. I have shown that I can grab just games from a specific day
 # Lets try the same thing but for just a specific team
@@ -104,3 +104,63 @@ def give_games_of_this_team(games, team):
     # Helper func that takes in games already filtered by day, and then does the same for a given team
     teams_games = [game for game in games if team in game]
     return teams_games
+
+
+# ---------------- DATETIME DATE TODAY TEST ------------------------
+
+today = date.today()
+# 2023, 10, 20
+week = timedelta(days=7)
+# I can't just plug in a 7 below, it wants it like this
+start_of_last_week = today - week
+# 2023, 10, 13
+start_of_last_week.year
+# 2023
+start_of_last_week.month
+# 10
+start_of_last_week.day
+# 13
+
+# date doesn't give accept or return leading 0s, which the nba stats expect.
+april_9_2023 = date(2023, 4, 9)
+# datetime.date(2022, 4, 9)
+
+# I think in a perfect world, I would want to add the leading 0s later, but its gotta happen at some point.
+def strip_date(datetime_dict):
+    """Given datetime obj, returns string of year-month-day
+    Input = datetime_dict like datetime.date(2023,10,13)
+    Output = '2023-10-13'
+    """
+    singles = [1,2,3,4,5,6,7,8,9]
+
+    year = datetime_dict.year
+
+    month = datetime_dict.month
+    if month in singles:
+        month = f'0{month}'
+
+    day = datetime_dict.day
+    if day in singles:
+        day = f'0{day}'
+
+    return f'{year}-{month}-{day}'
+
+# Now I think I need functions that will give the datetime objects for each day between today and last week
+# There has to be someway to do this dynamically, but I can't think of it
+
+def populate_days_of_this_past_week(today_datetime):
+    """Given a datetime obj, returns an array of stringed dates from the past week
+    Input: datetime_dict like datetime.date(2023,10,20)
+    Output: ['2023-10-20', '2023-10-19', ... '2023-10-13']"""
+    one_day = timedelta(days=1)
+    two_day = timedelta(days=2)
+    three_day = timedelta(days=3)
+    four_day = timedelta(days=4)
+    five_day = timedelta(days=5)
+    six_day = timedelta(days=6)
+    seven_day = timedelta(days=7)
+    days = [one_day, two_day, three_day, four_day, five_day, six_day, seven_day]
+
+    all_days_of_this_past_week = [strip_date(today_datetime - day) for day in days]
+    return all_days_of_this_past_week
+
