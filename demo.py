@@ -75,6 +75,39 @@ app.config['SQLALCHEMY_ECHO'] = True
 # Seems to give absolutely every game from this season. I need a way for it to give me the games from the last few days. There might be a better endpoint
 game_log = leaguegamelog.LeagueGameLog(counter='0', direction='ASC', league_id='00', player_or_team_abbreviation='T', season='2022-23', season_type_all_star='Regular Season', sorter='Date')
 
+
+game_log.expected_data
+# ['SEASON_ID',
+#   'TEAM_ID',
+#   'TEAM_ABBREVIATION',
+#   'TEAM_NAME',
+#   'GAME_ID',
+#   'GAME_DATE',
+#   'MATCHUP',
+#   'WL',
+#   'MIN',
+#   'FGM',
+#   'FGA',
+#   'FG_PCT',
+#   'FG3M',
+#   'FG3A',
+#   'FG3_PCT',
+#   'FTM',
+#   'FTA',
+#   'FT_PCT',
+#   'OREB',
+#   'DREB',
+#   'REB',
+#   'AST',
+#   'STL',
+#   'BLK',
+#   'TOV',
+#   'PF',
+#   'PTS',
+#   'PLUS_MINUS',
+#   'VIDEO_AVAILABLE']
+
+
 # This is what I am pretty sure are the right arguments for this leaguegamelog, but I am not sure if this is the date format they want.
 # date_to_nullable='2022-11-22', date_from_nullable='2022-11-15'
 
@@ -90,18 +123,22 @@ games = game_log.league_game_log.data['data']
 
 # Holy shit I did it. I have shown that I can grab just games from a specific day
 # Lets try the same thing but for just a specific team
-def give_games_of_this_day_for_this_team(games, day, team):
-    # Takes in the comprehensed game_log data, and given a day and a team, prints the game_log data from those specifications.
+def give_games_of_this_day_for_this_team(games, day, team=None):
+    """Takes in the comprehensed game_log data, and given a day and an optional team, prints the game_log data from those specifications."""
     games_of_this_day = [game for game in games if day in game]
-    games_filtered_by_date_and_team = give_games_of_this_team(games_of_this_day, team)
-    if len(games_filtered_by_date_and_team) == 0:
-        print(f'{team} did not play on {day}')
+    if team is not None:
+        games_filtered_by_date_and_team = give_games_of_this_team(games_of_this_day, team)
+        if len(games_filtered_by_date_and_team) == 0:
+            print(f'{team} did not play on {day}')
+        else:
+            return games_filtered_by_date_and_team
+    if len(games_of_this_day) == 0:
+        print(f'No games were played on {day}')
     else:
-        print(games_filtered_by_date_and_team)
-
+        return games_of_this_day
 
 def give_games_of_this_team(games, team):
-    # Helper func that takes in games already filtered by day, and then does the same for a given team
+    """Helper func that takes in games and a team, and returns games from that team"""
     teams_games = [game for game in games if team in game]
     return teams_games
 
@@ -163,4 +200,33 @@ def populate_days_of_this_past_week(today_datetime):
 
     all_days_of_this_past_week = [strip_date(today_datetime - day) for day in days]
     return all_days_of_this_past_week
+
+
+
+
+# ---------------- Putting it all together ------------------------
+
+
+# Now I need to go into the giant game_log data and just get the games from this past week and from a given team.
+
+def give_games_of_the_past_week(games, datetime, team=None):
+    """Given comprehensed game_log data list, a datetime_dict and an optional team or team abbreviation, return all of the games played, optionally by that team, in the past week
+    Input: game data list, datetime_dict like datetime.date(2023,10,20), team like 'Golden State Warriors' or 'GSW'
+    Output: game data list"""
+    days_of_past_week = populate_days_of_this_past_week(datetime)
+    # ['2023-10-22', '2023-10-21', ..., '2023-10-16']
+
+    # pretty cool nested for loop in a comprehension. Below is the uncool way but far more readable
+    games_of_past_week = [game for game in games for day in days_of_past_week if day in game]
+    # games_of_past_week = []
+    # for game in games:
+    #     for day in days_of_past_week:
+    #         if day in game:
+    #             # print(game)
+    #             games_of_past_week.append(game)
+    if team is not None:
+        teams_games = give_games_of_this_team(games_of_past_week, team)
+        return teams_games
+    return games_of_past_week
+
 
