@@ -64,7 +64,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 
 # ---------------- BOXSCORETRADITIONAL TEST ------------------------
 
-# game_traditional = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id="0021700807")
+game_traditional = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id="0021700807")
 
 # ---------------- LEAGUESTANDINGS TEST ------------------------
 
@@ -138,7 +138,9 @@ def give_games_of_this_day_for_this_team(games, day, team=None):
         return games_of_this_day
 
 def give_games_of_this_team(games, team):
-    """Helper func that takes in games and a team, and returns games from that team"""
+    """Helper func that takes in games and a team or team abbreviation, and returns games from that team
+    Input: game_log data (see above), team like 'Golden State Warriors' or 'GSW'
+    Output: game_log data """
     teams_games = [game for game in games if team in game]
     return teams_games
 
@@ -185,7 +187,7 @@ def strip_date(datetime_dict):
 # Now I think I need functions that will give the datetime objects for each day between today and last week
 # There has to be someway to do this dynamically, but I can't think of it
 
-def populate_days_of_this_past_week(today_datetime):
+def populate_days_of_this_past_week(datetime):
     """Given a datetime obj, returns an array of stringed dates from the past week
     Input: datetime_dict like datetime.date(2023,10,20)
     Output: ['2023-10-20', '2023-10-19', ... '2023-10-13']"""
@@ -196,9 +198,9 @@ def populate_days_of_this_past_week(today_datetime):
     five_day = timedelta(days=5)
     six_day = timedelta(days=6)
     seven_day = timedelta(days=7)
-    days = [one_day, two_day, three_day, four_day, five_day, six_day, seven_day]
+    days = [datetime, one_day, two_day, three_day, four_day, five_day, six_day, seven_day]
 
-    all_days_of_this_past_week = [strip_date(today_datetime - day) for day in days]
+    all_days_of_this_past_week = [strip_date(datetime - day) for day in days]
     return all_days_of_this_past_week
 
 
@@ -229,4 +231,85 @@ def give_games_of_the_past_week(games, datetime, team=None):
         return teams_games
     return games_of_past_week
 
+# Now I would like some way of getting more info about a specific game and the players that were in that game
 
+def boxscore_traditional_by_id(game_id_string):
+    """Given game_id string, returns all sorts of game data about the players and the team
+    Input: 'game_id string like '0022201230'
+    Output: game data"""
+    game_data = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id_string)
+    return game_data.get_dict()
+
+
+# PlayerStats': ['GAME_ID',
+#   'TEAM_ID',
+#   'TEAM_ABBREVIATION',
+#   'TEAM_CITY',
+#   'PLAYER_ID',
+#   'PLAYER_NAME',
+#   'START_POSITION',
+#   'COMMENT',
+#   'MIN',
+#   'FGM',
+#   'FGA',
+#   'FG_PCT',
+#   'FG3M',
+#   'FG3A',
+#   'FG3_PCT',
+#   'FTM',
+#   'FTA',
+#   'FT_PCT',
+#   'OREB',
+#   'DREB',
+#   'REB',
+#   'AST',
+#   'STL',
+#   'BLK',
+#   'TO',
+#   'PF',
+#   'PTS',
+#   'PLUS_MINUS']
+
+
+# ['0022201230',
+#      1610612744,
+#      'GSW',
+#      'Golden State',
+#      201939,
+#      'Stephen Curry',
+#      'Stephen',
+#      'G',
+#      '',
+#      '22.000000:27',
+#      9,
+#      15,
+#      0.6,
+#      5,
+#      10,
+#      0.5,
+#      3,
+#      3,
+#      1.0,
+#      0,
+#      5,
+#      5,
+#      7,
+#      0,
+#      0,
+#      1,
+#      0,
+#      26,
+#      26.0]
+
+# I meant for this function to only look for player name or player id, but it is actually very flexible and can be used to get anything from the playerStats list (see above)
+def player_data_from_id(game_id_string, player_info):
+    """Given a game_id string and some player info, returns the game data of that player.
+    Input: game_id string like '0022201230', player info like 'Stephen Curry' or 201939 (notice that player id is not a string, but game_id is)
+    Output: playerStats (see above)
+    """
+    game_response = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id_string).get_dict()
+    all_player_data = game_response['resultSets'][0]['rowSet']
+
+    for player in all_player_data:
+        if player_info in player:
+            return player
