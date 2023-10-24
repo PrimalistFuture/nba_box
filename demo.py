@@ -77,7 +77,7 @@ game_log = leaguegamelog.LeagueGameLog(counter='0', direction='ASC', league_id='
 
 
 game_log.expected_data
-# ['SEASON_ID',
+# {'LeagueGameLog':['SEASON_ID',
 #   'TEAM_ID',
 #   'TEAM_ABBREVIATION',
 #   'TEAM_NAME',
@@ -105,7 +105,7 @@ game_log.expected_data
 #   'PF',
 #   'PTS',
 #   'PLUS_MINUS',
-#   'VIDEO_AVAILABLE']
+#   'VIDEO_AVAILABLE']}
 
 
 # This is what I am pretty sure are the right arguments for this leaguegamelog, but I am not sure if this is the date format they want.
@@ -162,7 +162,7 @@ start_of_last_week.day
 
 # date doesn't give accept or return leading 0s, which the nba stats expect.
 april_9_2023 = date(2023, 4, 9)
-# datetime.date(2022, 4, 9)
+# datetime.date(2023, 4, 9)
 
 # I think in a perfect world, I would want to add the leading 0s later, but its gotta happen at some point.
 def strip_date(datetime_dict):
@@ -191,6 +191,7 @@ def populate_days_of_this_past_week(datetime):
     """Given a datetime obj, returns an array of stringed dates from the past week
     Input: datetime_dict like datetime.date(2023,10,20)
     Output: ['2023-10-20', '2023-10-19', ... '2023-10-13']"""
+    today = timedelta(days=0)
     one_day = timedelta(days=1)
     two_day = timedelta(days=2)
     three_day = timedelta(days=3)
@@ -198,9 +199,9 @@ def populate_days_of_this_past_week(datetime):
     five_day = timedelta(days=5)
     six_day = timedelta(days=6)
     seven_day = timedelta(days=7)
-    days = [datetime, one_day, two_day, three_day, four_day, five_day, six_day, seven_day]
-
+    days = [today, one_day, two_day, three_day, four_day, five_day, six_day, seven_day]
     all_days_of_this_past_week = [strip_date(datetime - day) for day in days]
+
     return all_days_of_this_past_week
 
 
@@ -232,6 +233,7 @@ def give_games_of_the_past_week(games, datetime, team=None):
     return games_of_past_week
 
 # Now I would like some way of getting more info about a specific game and the players that were in that game
+# DEPRECATED: player_data_from_id now does everything boxscore_traditional_by_id does but with optional player filtering
 
 def boxscore_traditional_by_id(game_id_string):
     """Given game_id string, returns all sorts of game data about the players and the team
@@ -302,14 +304,99 @@ def boxscore_traditional_by_id(game_id_string):
 #      26.0]
 
 # I meant for this function to only look for player name or player id, but it is actually very flexible and can be used to get anything from the playerStats list (see above)
-def player_data_from_id(game_id_string, player_info):
-    """Given a game_id string and some player info, returns the game data of that player.
+def player_data_from_id(game_id_string, player_info=None):
+    """Given a game_id string and optionally some player info, returns the game data of that player, or all game data if no player info is supplied.
     Input: game_id string like '0022201230', player info like 'Stephen Curry' or 201939 (notice that player id is not a string, but game_id is)
     Output: playerStats (see above)
     """
     game_response = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id_string).get_dict()
-    all_player_data = game_response['resultSets'][0]['rowSet']
+    if player_info is not None:
+        all_player_data = game_response['resultSets'][0]['rowSet']
 
-    for player in all_player_data:
-        if player_info in player:
-            return player
+        for player in all_player_data:
+            if player_info in player:
+                return player
+    return game_response
+
+def give_player_games_of_past_week(team, player_info):
+    """Given some team name or abbreviation, and some player_info, returns that players games from the past week
+    Input: team like 'Golden State Warriors' or 'GSW', player_info like 'Stephen Curry' or 201939
+    Output: PlayerStats (see above)
+    """
+    last_weeks_games = give_games_of_the_past_week(games, today, team)
+    last_weeks_game_ids = [give_game_id(game) for game in last_weeks_games]
+    player_data = [player_data_from_id(id, player_info) for id in last_weeks_game_ids]
+    return player_data
+
+# {'LeagueGameLog': ['SEASON_ID',
+#   'TEAM_ID',
+#   'TEAM_ABBREVIATION',
+#   'TEAM_NAME',
+#   'GAME_ID',
+#   'GAME_DATE',
+#   'MATCHUP',
+#   'WL',
+#   'MIN',
+#   'FGM',
+#   'FGA',
+#   'FG_PCT',
+#   'FG3M',
+#   'FG3A',
+#   'FG3_PCT',
+#   'FTM',
+#   'FTA',
+#   'FT_PCT',
+#   'OREB',
+#   'DREB',
+#   'REB',
+#   'AST',
+#   'STL',
+#   'BLK',
+#   'TOV',
+#   'PF',
+#   'PTS',
+#   'PLUS_MINUS',
+#   'VIDEO_AVAILABLE']}
+# ----- example ------
+# ['22022',
+#   1610612744,
+#   'GSW',
+#   'Golden State Warriors',
+#   '0022201230',
+#   '2023-04-09',
+#   'GSW @ POR',
+#   'W',
+#   240,
+#   58,
+#   96,
+#   0.604,
+#   27,
+#   49,
+#   0.551,
+#   14,
+#   16,
+#   0.875,
+#   9,
+#   49,
+#   58,
+#   47,
+#   13,
+#   6,
+#   16,
+#   18,
+#   157,
+#   56,
+#   1]
+
+def give_game_id(game_log):
+    """Given a game_log_array, returns the game_id from that array
+    Input: LeagueGameLog (see above)
+    Output: '0022201230'
+    """
+    game_id = game_log[4]
+    return game_id
+
+
+# warriors_games = give_games_of_the_past_week(games, april_9_2023, 'GSW')
+# game_ids = [give_game_id(game) for game in warriors_games]
+# currys_games_from_past_week = [player_data_from_id(game_id, 'Stephen Curry') for game_id in game_ids]
