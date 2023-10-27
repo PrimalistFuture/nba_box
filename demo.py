@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from flask import Flask
 # from flask_debugtoolbar import DebugToolbarExtension
 from nba_api.stats.static import teams, players
-from nba_api.stats.endpoints import playercareerstats, boxscorescoringv2, boxscoretraditionalv2, leaguestandingsv3, leaguegamelog
+from nba_api.stats.endpoints import playercareerstats, boxscorescoringv2, boxscoretraditionalv2, leaguestandingsv3, leaguegamelog, leaguestandings
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
@@ -400,3 +400,10 @@ def give_game_id(game_log):
 # warriors_games = give_games_of_the_past_week(games, april_9_2023, 'GSW')
 # game_ids = [give_game_id(game) for game in warriors_games]
 # currys_games_from_past_week = [player_data_from_id(game_id, 'Stephen Curry') for game_id in game_ids]
+
+
+def give_league_standings(year_string):
+    """"""
+    standings = leaguestandings.LeagueStandings(league_id=00, season=year_string, season_type='Regular Season')
+
+    return standings
