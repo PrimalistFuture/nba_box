@@ -5,11 +5,21 @@ from dates import strip_date, populate_days_of_this_past_week
 # {'LeagueGameLog':['SEASON_ID','TEAM_ID','TEAM_ABBREVIATION','TEAM_NAME','GAME_ID','GAME_DATE','MATCHUP','WL','MIN','FGM','FGA','FG_PCT','FG3M','FG3A','FG3_PCT','FTM','FTA','FT_PCT','OREB','DREB','REB','AST','STL','BLK','TOV','PF','PTS','PLUS_MINUS','VIDEO_AVAILABLE']}
 
 def give_games(year_string, season_type='Regular Season'):
-    """Given a year string and a season type defaulting to Regular Season, returns all of the games played in that season type for that year
-    Input: year string like '2022-23', season type like 'Regular Season' or 'Playoffs' or 'All-Star'
+    """Given a year string and a season type defaulting to Regular Season,
+    returns all of the games played in that season type for that year
+    Input: year string like '2022-23',
+        season type like 'Regular Season' or 'Playoffs' or 'All-Star'
     Output: LeagueGameLog
     """
-    game_log_response = leaguegamelog.LeagueGameLog(counter='0', direction='ASC', league_id='00', player_or_team_abbreviation='T', season=year_string, season_type_all_star=season_type, sorter='Date')
+    game_log_response = leaguegamelog.LeagueGameLog(
+        counter='0',
+        direction='ASC',
+        league_id='00',
+        player_or_team_abbreviation='T',
+        season=year_string,
+        season_type_all_star=season_type,
+        sorter='Date'
+    )
 
     game_logs = game_log_response.league_game_log.data['data']
 
@@ -36,6 +46,7 @@ def give_games_of_this_day(day, games=None):
     Input: day like '2023-10-24', games like LeagueGameLog
     Output: LeagueGameLog
     """
+
     if games is None:
         games = give_games('2023-24')
     games_of_this_day = [game for game in games if day in game]
@@ -46,7 +57,7 @@ def give_games_of_this_day(day, games=None):
 
 
 def give_games_of_this_day_for_this_team(day, team, games=None):
-    """Combines two different functions to take in a day, a team and optionally some games defaulting to 2023-24, and returns all games played by that team on that day
+    """Combines two (or three) different functions to take in a day, a team and optionally some games defaulting to 2023-24, and returns all games played by that team on that day
     Input: day like '2023-10-24', team like 'Golden State Warriors' or 'GSW',games like LeagueGameLog
     Output: LeagueGameLog
     """

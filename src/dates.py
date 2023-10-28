@@ -5,6 +5,10 @@ def strip_date(datetime_dict):
     Input = datetime_dict like datetime.date(2023,10,13)
     Output = '2023-10-13'
     """
+
+    if type(datetime_dict) is not date:
+        raise TypeError
+
     singles = [1,2,3,4,5,6,7,8,9]
 
     year = datetime_dict.year
@@ -24,6 +28,10 @@ def populate_days_of_this_past_week(datetime):
     Input: datetime_dict like datetime.date(2023,10,20)
     Output: ['2023-10-20', '2023-10-19', ... '2023-10-13']
     """
+
+    if type(datetime) is not date:
+        raise TypeError
+
     today = timedelta(days=0)
     one_day = timedelta(days=1)
     two_day = timedelta(days=2)

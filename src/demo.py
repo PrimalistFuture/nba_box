@@ -404,6 +404,10 @@ def give_game_id(game_log):
 
 def give_league_standings(year_string):
     """"""
-    standings = leaguestandings.LeagueStandings(league_id=00, season=year_string, season_type='Regular Season')
+    standings = leaguestandings.LeagueStandings(
+        league_id=00,
+        season=year_string,
+        season_type='Regular Season'
+    )
 
-    return standings
+    return standings.standings
