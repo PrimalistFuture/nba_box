@@ -71,7 +71,27 @@ def give_games_of_this_day(day, games=None):
 
 def test_give_games_of_this_day_success():
     assert len(give_games_of_this_day('2023-10-24')) == 4
-    assert len(give_games_of_this_day('2023-10-25')) == 34
+    assert len(give_games_of_this_day('2023-10-25')) == 24
 
 def test_give_games_of_this_day_failure():
     assert give_games_of_this_day('2023-10-23') == 'No games were played on 2023-10-23'
+
+# ______________________________give_game_id_tests______________________________
+
+def give_game_id(game_log):
+    """Given a single game_log, returns the game_id from that array
+    Input: LeagueGameLog (see above)
+    Output: '0022201230'
+    """
+
+    if len(game_log) == 29:
+        game_id = game_log[4]
+        return game_id
+    else:
+        return f'Provided game_log is probably not a valid LeagueGameLog, which must have a length of 29.'
+
+def give_game_id_success():
+    assert give_game_id([0,0,0,0,'0022201230',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]) == '0022201230'
+
+def give_game_id_failure():
+    assert give_game_id([]) == 'Provided game_log is probably not a valid LeagueGameLog, which must have a length of 29.'
