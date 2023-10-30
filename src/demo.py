@@ -1,15 +1,15 @@
-import os
+# import os
 from datetime import date, timedelta
-from flask import Flask
+# from flask import Flask
 # from flask_debugtoolbar import DebugToolbarExtension
 from nba_api.stats.static import teams, players
 from nba_api.stats.endpoints import playercareerstats, boxscorescoringv2, boxscoretraditionalv2, leaguestandingsv3, leaguegamelog, leaguestandings
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    "DATABASE_URL", 'postgresql:///sts_test')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_ECHO'] = True
+# app = Flask(__name__)
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+#     "DATABASE_URL", 'postgresql:///sts_test')
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_ECHO'] = True
 
 
 # Nikola Jokić
