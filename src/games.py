@@ -1,6 +1,6 @@
 from nba_api.stats.endpoints import boxscoretraditionalv2, leaguegamelog
 from datetime import date
-from dates import strip_date, populate_days_of_this_past_week
+from src.dates import strip_date, populate_days_of_this_past_week
 
 # {'LeagueGameLog':['SEASON_ID','TEAM_ID','TEAM_ABBREVIATION','TEAM_NAME','GAME_ID','GAME_DATE','MATCHUP','WL','MIN','FGM','FGA','FG_PCT','FG3M','FG3A','FG3_PCT','FTM','FTA','FT_PCT','OREB','DREB','REB','AST','STL','BLK','TOV','PF','PTS','PLUS_MINUS','VIDEO_AVAILABLE']}
 

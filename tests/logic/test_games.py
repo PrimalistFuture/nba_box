@@ -1,27 +1,28 @@
 import pytest
 from nba_api.stats.endpoints import leaguegamelog
+from src.games import give_games
 
 # ______________________________give_games_tests________________________________
 
-def give_games(year_string, season_type='Regular Season'):
-    """Given a year string and a season type defaulting to Regular Season,
-    returns all of the games played in that season type for that year
-    Input: year string like '2022-23', season type like 'Regular Season' or 'Playoffs' or 'All-Star'
-    Output: LeagueGameLog
-    """
-    game_log_response = leaguegamelog.LeagueGameLog(
-        counter='0',
-        direction='ASC',
-        league_id='00',
-        player_or_team_abbreviation='T',
-        season=year_string,
-        season_type_all_star=season_type,
-        sorter='Date'
-    )
+# def give_games(year_string, season_type='Regular Season'):
+#     """Given a year string and a season type defaulting to Regular Season,
+#     returns all of the games played in that season type for that year
+#     Input: year string like '2022-23', season type like 'Regular Season' or 'Playoffs' or 'All-Star'
+#     Output: LeagueGameLog
+#     """
+#     game_log_response = leaguegamelog.LeagueGameLog(
+#         counter='0',
+#         direction='ASC',
+#         league_id='00',
+#         player_or_team_abbreviation='T',
+#         season=year_string,
+#         season_type_all_star=season_type,
+#         sorter='Date'
+#     )
 
-    game_logs = game_log_response.league_game_log.data['data']
+#     game_logs = game_log_response.league_game_log.data['data']
 
-    return game_logs
+#     return game_logs
 
 def test_give_games_success():
     assert len(give_games('2022-23')) == 2460
